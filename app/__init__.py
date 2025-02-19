@@ -1,13 +1,17 @@
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
+from flask_cors import CORS
 from .config import Config
 
 db = SQLAlchemy()
 
 def create_app():
     app = Flask(__name__)
-    app.config.from_object(Config)
     
+    # Apply CORS to ALL routes
+    CORS(app, resources={r"/*": {"origins": "http://localhost:5173"}}, supports_credentials=True)
+    
+    app.config.from_object(Config)
     db.init_app(app)
     
     from .routes import customer_routes, product_routes, order_routes

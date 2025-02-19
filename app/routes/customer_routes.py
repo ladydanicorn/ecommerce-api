@@ -1,16 +1,26 @@
 from flask import Blueprint, request, jsonify
 from app import db
-from app.models.customer import Customer, CustomerAccount
+from app.models.customer import Customer
 
 bp = Blueprint('customer', __name__, url_prefix='/api/customers')
+
+# ✅ Add this route to get all customers
+@bp.route('/', methods=['GET'])
+def get_customers():
+    customers = Customer.query.all()
+    customer_list = [
+        {'id': c.id, 'name': c.name, 'email': c.email, 'phone': c.phone}
+        for c in customers
+    ]
+    return jsonify({'customers': customer_list})
 
 @bp.route('/', methods=['POST'])
 def create_customer():
     data = request.get_json()
-    
+
     if not all(k in data for k in ['name', 'email']):
         return jsonify({'error': 'Missing required fields'}), 400
-    
+
     try:
         customer = Customer(
             name=data['name'],
@@ -40,6 +50,7 @@ def get_customer(id):
         'email': customer.email,
         'phone': customer.phone
     })
+
 
 @bp.route('/<int:id>', methods=['PUT'])
 def update_customer(id):
